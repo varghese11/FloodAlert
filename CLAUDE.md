@@ -28,6 +28,9 @@ adb shell dumpsys jobscheduler | grep flood_alert
 
 # Get runtime crash logs from connected device
 adb logcat -d -s AndroidRuntime:E flutter:*
+
+# Verify the CWC API is reachable (standalone Dart script, no device needed)
+dart lib/api_test.dart
 ```
 
 `water_reading.g.dart` is pre-generated and committed. Only re-run `build_runner` if `water_reading.dart` is changed.
@@ -79,8 +82,12 @@ Hive keys are idempotent — repeated fetches never create duplicates.
 
 Two `ChangeNotifier` providers injected in `main.dart`:
 
-- **`WaterDataProvider`** — owns readings for both stations. Getters: `currentReading`, `previousHourReading`, `levelDelta` (Kallooppara); `upstreamCurrentReading`, `upstreamPreviousReading`, `upstreamLevelDelta` (Pullakkayar). `loadFromStorage()` is synchronous (cache-first render); `refreshFromApi()` fetches both stations in parallel.
+- **`WaterDataProvider`** — owns readings for both stations. Exposes `mainStation` and `upstreamStation` as `StationData` objects (see below). `loadFromStorage()` is synchronous (cache-first render); `refreshFromApi()` fetches both stations in parallel. Also subscribes to Hive `ValueListenable` on both boxes, so background task writes are automatically reflected in the UI without a manual refresh.
 - **`SettingsProvider`** — owns `threshold`, `upstreamThreshold`, and `isPaused`. `togglePause()` is the single place that cancels or re-registers the WorkManager task.
+
+### StationData model
+
+`lib/models/station_data.dart` is a value object that wraps a `List<WaterReading>` and computes derived properties: `currentReading` (last entry), `previousHourReading` (most recent entry older than 1 hour ago), `levelDelta` (difference between the two), and `lastUpdated`. Both providers expose station data through this type — access readings via `provider.mainStation.currentReading`, not raw list indexes.
 
 ### CWC API
 
