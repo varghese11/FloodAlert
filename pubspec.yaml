@@ -1,0 +1,58 @@
+name: flood_alert
+description: Water level monitoring for Kallooppara, Manimala River.
+
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.10.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # HTTP client
+  dio: ^5.4.0
+
+  # Charts
+  fl_chart: ^1.1.1
+
+  # Local notifications / alarms
+  flutter_local_notifications: ^19.2.1
+
+  # Background periodic fetch
+  workmanager: ^0.9.0+3
+
+  # Historical data storage
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+
+  # Settings storage
+  shared_preferences: ^2.2.2
+
+  # State management
+  provider: ^6.1.2
+
+  # Date/time formatting
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.8
+  flutter_launcher_icons: ^0.14.4
+
+flutter:
+  uses-material-design: true
+
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: false
+  image_path: "newicons/FloodAlert-Icon-1024.png"
+  adaptive_icon_background: "#1E1E1E"
+  adaptive_icon_foreground: "newicons/FloodAlert-Icon-1024.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true

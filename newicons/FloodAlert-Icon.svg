@@ -1,0 +1,25 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="drop_1024">
+      <path d="M512 71.68 C512 71.68 163.84 532.48 163.84 716.8 C163.84 901.12 307.2 1013.76 512 1013.76 C716.8 1013.76 860.16 901.12 860.16 716.8 C860.16 532.48 512 71.68 512 71.68Z"/>
+    </clipPath>
+    <linearGradient id="grad_1024" x1="512" y1="71.68" x2="512" y2="1013.76" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#bfdbfe"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="256" fill="#0f2d52"/>
+  <path d="M512 71.68 C512 71.68 163.84 532.48 163.84 716.8 C163.84 901.12 307.2 1013.76 512 1013.76 C716.8 1013.76 860.16 901.12 860.16 716.8 C860.16 532.48 512 71.68 512 71.68Z"
+    fill="url(#grad_1024)"/>
+  <g clip-path="url(#drop_1024)">
+    <path d="M81.92 757.76 Q256 665.6 430.08 757.76 Q593.92 849.92 768 757.76 Q942.08 665.6 1105.92 757.76 L1105.92 1075.2 L81.92 1075.2Z"
+      fill="#1a6faf" opacity="0.3"/>
+    <path d="M81.92 655.36 Q256 563.2 430.08 655.36 Q593.92 747.52 768 655.36 Q942.08 563.2 1105.92 655.36 L1105.92 1075.2 L81.92 1075.2Z"
+      fill="#93c5fd" opacity="0.35"/>
+  </g>
+  <!-- Shine -->
+  <ellipse cx="389.12" cy="430.08" rx="61.44" ry="112.64" fill="white" opacity="0.35" transform="rotate(-20 389.12 430.08)"/>
+  <!-- Exclamation mark -->
+  <rect x="465.92" y="307.2" width="92.16" height="307.2" rx="46.08" fill="#ef4444"/>
+  <circle cx="512" cy="737.28" r="46.08" fill="#ef4444"/>
+</svg>
