@@ -28,8 +28,10 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final isPaused = context.watch<SettingsProvider>().isPaused;
-    final error = context.watch<WaterDataProvider>().errorMessage;
-    final isLoading = context.watch<WaterDataProvider>().isLoading;
+    final dataProvider = context.watch<WaterDataProvider>();
+    final error = dataProvider.errorMessage;
+    final isLoading = dataProvider.isLoading;
+    final apiReturnedEmpty = dataProvider.apiReturnedEmpty;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF4F8FF),
@@ -86,6 +88,31 @@ class _HomeScreenState extends State<HomeScreen> {
                         'Monitoring is paused. Tap ▶ in the toolbar to resume.',
                         style: TextStyle(
                             color: Colors.orange.shade800, fontSize: 13),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            if (apiReturnedEmpty)
+              Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.amber.shade50,
+                  border: Border.all(color: Colors.amber.shade300),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline,
+                        color: Colors.amber.shade800, size: 18),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'CWC stations returned no new readings. The sensor may not have reported since the last update.',
+                        style: TextStyle(
+                            color: Colors.amber.shade900, fontSize: 13),
                       ),
                     ),
                   ],

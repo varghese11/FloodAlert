@@ -9,7 +9,7 @@ class StorageService {
   static const _thresholdKey = 'alarm_threshold';
   static const _upstreamThresholdKey = 'upstream_alarm_threshold';
   static const _pausedKey = 'is_fetching_paused';
-  static const _maxStoredDays = 2;
+  static const _maxStoredDays = 3;
 
   late Box<WaterReading> _readingsBox;
   late Box<WaterReading> _upstreamBox;

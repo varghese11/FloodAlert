@@ -13,6 +13,7 @@ class WaterDataProvider extends ChangeNotifier {
   List<WaterReading> _upstreamReadings = [];
   bool _isLoading = false;
   String? _errorMessage;
+  bool _apiReturnedEmpty = false;
 
   late final ValueListenable<Box<WaterReading>> _readingsListenable;
   late final ValueListenable<Box<WaterReading>> _upstreamListenable;
@@ -39,6 +40,7 @@ class WaterDataProvider extends ChangeNotifier {
   List<WaterReading> get upstreamReadings => _upstreamReadings;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+  bool get apiReturnedEmpty => _apiReturnedEmpty;
 
   // --- Station Data Accessors ---
 
@@ -56,16 +58,20 @@ class WaterDataProvider extends ChangeNotifier {
   Future<void> refreshFromApi() async {
     _isLoading = true;
     _errorMessage = null;
+    _apiReturnedEmpty = false;
     notifyListeners();
     try {
       final results = await Future.wait([
-        _api.fetchLast24Hours(stationCode: WaterStation.kallooppara),
-        _api.fetchLast24Hours(stationCode: WaterStation.pullakkayar),
+        _api.fetchReadings(stationCode: WaterStation.kallooppara),
+        _api.fetchReadings(stationCode: WaterStation.pullakkayar),
       ]);
       await _storage.saveReadings(results[0]);
       await _storage.saveUpstreamReadings(results[1]);
       _readings = _storage.getReadings();
       _upstreamReadings = _storage.getUpstreamReadings();
+      if (results[0].isEmpty && results[1].isEmpty) {
+        _apiReturnedEmpty = true;
+      }
     } on ApiTimeoutException {
       _errorMessage = 'Connection timed out. Please try again.';
     } on NetworkException catch (e) {

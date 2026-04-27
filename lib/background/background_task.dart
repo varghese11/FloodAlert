@@ -12,7 +12,9 @@ void callbackDispatcher() {
   Workmanager().executeTask((taskName, inputData) async {
     try {
       await Hive.initFlutter();
-      Hive.registerAdapter(WaterReadingAdapter());
+      if (!Hive.isAdapterRegistered(0)) {
+        Hive.registerAdapter(WaterReadingAdapter());
+      }
 
       final storage = StorageService();
       await storage.init();
@@ -25,7 +27,7 @@ void callbackDispatcher() {
 
       // Fetch both stations in parallel, handling failures independently
       final upstreamFuture = () async {
-        final upstreamReadings = await api.fetchLast24Hours(stationCode: WaterStation.pullakkayar);
+        final upstreamReadings = await api.fetchReadings(stationCode: WaterStation.pullakkayar);
         if (upstreamReadings.isNotEmpty) {
           await storage.saveUpstreamReadings(upstreamReadings);
           final upstreamLevel = upstreamReadings.last.waterLevel;
@@ -40,7 +42,7 @@ void callbackDispatcher() {
       }();
 
       final mainFuture = () async {
-        final mainReadings = await api.fetchLast24Hours(stationCode: WaterStation.kallooppara);
+        final mainReadings = await api.fetchReadings(stationCode: WaterStation.kallooppara);
         if (mainReadings.isNotEmpty) {
           await storage.saveReadings(mainReadings);
           final mainLevel = mainReadings.last.waterLevel;

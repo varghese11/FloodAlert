@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -10,6 +11,20 @@ import 'providers/water_data_provider.dart';
 import 'services/notification_service.dart';
 import 'services/storage_service.dart';
 import 'services/water_api_service.dart';
+
+const _batteryChannel = MethodChannel('com.floodalert/battery');
+
+Future<void> _requestBatteryOptimizationExemption() async {
+  try {
+    final isIgnoring =
+        await _batteryChannel.invokeMethod<bool>('isIgnoringBatteryOptimizations') ?? false;
+    if (!isIgnoring) {
+      await _batteryChannel.invokeMethod('requestIgnoreBatteryOptimizations');
+    }
+  } catch (_) {
+    // Non-Android platforms or older OS versions — safe to ignore.
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,6 +43,7 @@ void main() async {
   if (!storageService.isFetchingPaused()) {
     await BackgroundTaskManager.scheduleHourlyFetch();
   }
+  await _requestBatteryOptimizationExemption();
 
   runApp(
     MultiProvider(

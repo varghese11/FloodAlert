@@ -45,7 +45,7 @@ class WaterLevelChart extends StatelessWidget {
             const Padding(
               padding: EdgeInsets.only(left: 12, bottom: 12),
               child: Text(
-                'Water Level — Last 24 Hours',
+                'Water Level — Last 3 Days',
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
               ),
             ),

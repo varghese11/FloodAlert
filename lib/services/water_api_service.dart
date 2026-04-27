@@ -32,11 +32,12 @@ class WaterApiService {
           receiveTimeout: const Duration(seconds: 15),
         ));
 
-  Future<List<WaterReading>> fetchLast24Hours({
+  Future<List<WaterReading>> fetchReadings({
     String stationCode = WaterStation.kallooppara,
+    Duration lookback = const Duration(hours: 72),
   }) async {
     final now = DateTime.now();
-    final from = now.subtract(const Duration(hours: 24));
+    final from = now.subtract(lookback);
 
     final sortCriteria = jsonEncode({
       "sortOrderDtos": [
