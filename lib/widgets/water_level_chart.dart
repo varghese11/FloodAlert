@@ -5,6 +5,9 @@ import 'package:provider/provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/water_data_provider.dart';
 
+bool _sameDay(DateTime a, DateTime b) =>
+    a.year == b.year && a.month == b.month && a.day == b.day;
+
 class WaterLevelChart extends StatelessWidget {
   const WaterLevelChart({super.key});
 
@@ -33,6 +36,8 @@ class WaterLevelChart extends StatelessWidget {
 
     // Show at most 6 time labels on X axis
     final interval = (readings.length / 6).ceilToDouble().clamp(1.0, double.infinity);
+    final spansMultipleDays = readings.length > 1 &&
+        !_sameDay(readings.first.dataTime, readings.last.dataTime);
 
     return Card(
       elevation: 4,
@@ -120,16 +125,22 @@ class WaterLevelChart extends StatelessWidget {
                       sideTitles: SideTitles(
                         showTitles: true,
                         interval: interval,
+                        reservedSize: 34,
                         getTitlesWidget: (value, meta) {
                           final idx = value.toInt();
                           if (idx < 0 || idx >= readings.length) {
                             return const SizedBox();
                           }
+                          final dt = readings[idx].dataTime;
+                          final label = spansMultipleDays
+                              ? DateFormat("d MMM\nh:mm a").format(dt)
+                              : DateFormat("h:mm a").format(dt);
                           return Padding(
                             padding: const EdgeInsets.only(top: 4),
                             child: Text(
-                              DateFormat('HH:mm').format(readings[idx].dataTime),
+                              label,
                               style: const TextStyle(fontSize: 9),
+                              textAlign: TextAlign.center,
                             ),
                           );
                         },
