@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/water_data_provider.dart';
+import '../services/water_api_service.dart';
 
 bool _sameDay(DateTime a, DateTime b) =>
     a.year == b.year && a.month == b.month && a.day == b.day;
@@ -29,10 +30,17 @@ class WaterLevelChart extends StatelessWidget {
       return FlSpot(e.key.toDouble(), e.value.waterLevel);
     }).toList();
 
+    final dangerLevel = WaterStation.kalloopparaInfo.dangerLevel;
+    final highestFloodLevel = WaterStation.kalloopparaInfo.highestFloodLevel;
+
     final allLevels = readings.map((r) => r.waterLevel).toList();
     final minY = (allLevels.reduce((a, b) => a < b ? a : b) - 0.5)
         .clamp(0.0, double.infinity);
-    final maxY = allLevels.reduce((a, b) => a > b ? a : b) + 0.5;
+    final dataMax = allLevels.reduce((a, b) => a > b ? a : b) + 0.5;
+    final maxY = [dataMax, threshold + 0.5, highestFloodLevel + 0.5]
+        .reduce((a, b) => a > b ? a : b);
+    final yRange = maxY - minY;
+    final yInterval = yRange <= 2 ? 0.5 : yRange <= 6 ? 1.0 : yRange <= 12 ? 2.0 : 5.0;
 
     // Show at most 6 time labels on X axis
     final interval = (readings.length / 6).ceilToDouble().clamp(1.0, double.infinity);
@@ -59,7 +67,7 @@ class WaterLevelChart extends StatelessWidget {
               child: LineChart(
                 LineChartData(
                   minY: minY,
-                  maxY: maxY > threshold + 0.5 ? maxY : threshold + 0.5,
+                  maxY: maxY,
                   gridData: FlGridData(
                     show: true,
                     drawVerticalLine: false,
@@ -85,6 +93,40 @@ class WaterLevelChart extends StatelessWidget {
                   ],
                   extraLinesData: ExtraLinesData(
                     horizontalLines: [
+                      HorizontalLine(
+                        y: dangerLevel,
+                        color: Colors.orange.withValues(alpha: 0.8),
+                        strokeWidth: 1.5,
+                        dashArray: [6, 4],
+                        label: HorizontalLineLabel(
+                          show: true,
+                          alignment: Alignment.topLeft,
+                          style: TextStyle(
+                            color: Colors.orange.shade800,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          labelResolver: (_) =>
+                              ' Danger ${dangerLevel.toStringAsFixed(1)}m',
+                        ),
+                      ),
+                      HorizontalLine(
+                        y: highestFloodLevel,
+                        color: Colors.red.shade900.withValues(alpha: 0.8),
+                        strokeWidth: 1.5,
+                        dashArray: [6, 4],
+                        label: HorizontalLineLabel(
+                          show: true,
+                          alignment: Alignment.topLeft,
+                          style: TextStyle(
+                            color: Colors.red.shade900,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          labelResolver: (_) =>
+                              ' Highest ${highestFloodLevel.toStringAsFixed(2)}m',
+                        ),
+                      ),
                       HorizontalLine(
                         y: threshold,
                         color: Colors.red.withValues(alpha: 0.7),
@@ -115,10 +157,16 @@ class WaterLevelChart extends StatelessWidget {
                       sideTitles: SideTitles(
                         showTitles: true,
                         reservedSize: 42,
-                        getTitlesWidget: (value, meta) => Text(
-                          '${value.toStringAsFixed(1)}m',
-                          style: const TextStyle(fontSize: 10),
-                        ),
+                        interval: yInterval,
+                        getTitlesWidget: (value, meta) {
+                          if (value == meta.min || value == meta.max) {
+                            return const SizedBox.shrink();
+                          }
+                          return Text(
+                            '${value.toStringAsFixed(1)}m',
+                            style: const TextStyle(fontSize: 10),
+                          );
+                        },
                       ),
                     ),
                     bottomTitles: AxisTitles(

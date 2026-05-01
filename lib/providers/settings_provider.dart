@@ -7,15 +7,18 @@ class SettingsProvider extends ChangeNotifier {
 
   double _threshold;
   double _upstreamThreshold;
+  double _manikalThreshold;
   bool _isPaused;
 
   SettingsProvider(this._storage)
       : _threshold = _storage.getThreshold(),
         _upstreamThreshold = _storage.getUpstreamThreshold(),
+        _manikalThreshold = _storage.getManikalThreshold(),
         _isPaused = _storage.isFetchingPaused();
 
   double get threshold => _threshold;
   double get upstreamThreshold => _upstreamThreshold;
+  double get manikalThreshold => _manikalThreshold;
   bool get isPaused => _isPaused;
 
   Future<void> setThreshold(double value) async {
@@ -27,6 +30,12 @@ class SettingsProvider extends ChangeNotifier {
   Future<void> setUpstreamThreshold(double value) async {
     _upstreamThreshold = value;
     await _storage.saveUpstreamThreshold(value);
+    notifyListeners();
+  }
+
+  Future<void> setManikalThreshold(double value) async {
+    _manikalThreshold = value;
+    await _storage.saveManikalThreshold(value);
     notifyListeners();
   }
 

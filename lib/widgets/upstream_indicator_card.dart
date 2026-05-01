@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/settings_provider.dart';
-import '../providers/water_data_provider.dart';
+import '../models/station_data.dart';
 
 class UpstreamIndicatorCard extends StatelessWidget {
-  const UpstreamIndicatorCard({super.key});
+  final String stationName;
+  final StationData stationData;
+  final double alertThreshold;
+  final double dangerLevel;
+  final double highestFloodLevel;
+
+  const UpstreamIndicatorCard({
+    super.key,
+    required this.stationName,
+    required this.stationData,
+    required this.alertThreshold,
+    required this.dangerLevel,
+    required this.highestFloodLevel,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final data = context.watch<WaterDataProvider>();
-    final settings = context.watch<SettingsProvider>();
-
-    final current = data.upstreamStation.currentReading;
-    final delta = data.upstreamStation.levelDelta;
-    final threshold = settings.upstreamThreshold;
-    final isWarning = current != null && current.waterLevel >= threshold;
+    final current = stationData.currentReading;
+    final delta = stationData.levelDelta;
+    final isWarning = current != null && current.waterLevel >= alertThreshold;
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -34,7 +41,7 @@ class UpstreamIndicatorCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Pullakkayar (Upstream)',
+                    stationName,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -58,11 +65,27 @@ class UpstreamIndicatorCard extends StatelessWidget {
                         _TrendChip(delta: delta),
                       ],
                     ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      _LevelBadge(
+                        label: 'Danger',
+                        value: dangerLevel.toStringAsFixed(1),
+                        color: Colors.orange.shade700,
+                      ),
+                      const SizedBox(width: 10),
+                      _LevelBadge(
+                        label: 'Highest Flood',
+                        value: highestFloodLevel.toStringAsFixed(2),
+                        color: Colors.red.shade700,
+                      ),
+                    ],
+                  ),
                   if (isWarning)
                     Padding(
                       padding: const EdgeInsets.only(top: 4),
                       child: Text(
-                        'Rising above ${threshold.toStringAsFixed(0)} — watch Kallooppara',
+                        'Rising above ${alertThreshold.toStringAsFixed(0)} — watch Kallooppara',
                         style: TextStyle(
                             fontSize: 11,
                             color: Colors.orange.shade800,
@@ -75,6 +98,31 @@ class UpstreamIndicatorCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _LevelBadge extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+
+  const _LevelBadge({required this.label, required this.value, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          '$label: ',
+          style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+        ),
+        Text(
+          value,
+          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: color),
+        ),
+      ],
     );
   }
 }
@@ -92,10 +140,10 @@ class _TrendChip extends StatelessWidget {
     if (abs < 0.01) {
       return _chip('Stable', Colors.grey.shade600, Icons.remove);
     } else if (delta! > 0) {
-      return _chip('+${abs.toStringAsFixed(2)} m', Colors.green.shade700,
+      return _chip('+${abs.toStringAsFixed(2)}', Colors.green.shade700,
           Icons.arrow_upward);
     } else {
-      return _chip('-${abs.toStringAsFixed(2)} m', Colors.blue.shade700,
+      return _chip('-${abs.toStringAsFixed(2)}', Colors.blue.shade700,
           Icons.arrow_downward);
     }
   }

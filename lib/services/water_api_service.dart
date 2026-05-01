@@ -14,9 +14,30 @@ class ApiTimeoutException implements Exception {
   @override String toString() => 'ApiTimeoutException: $message';
 }
 
+class StationInfo {
+  final String code;
+  final String name;
+  final double dangerLevel;
+  final double highestFloodLevel;
+  const StationInfo({
+    required this.code,
+    required this.name,
+    required this.dangerLevel,
+    required this.highestFloodLevel,
+  });
+}
+
 class WaterStation {
   static const String kallooppara = '017-SWRDKOCHI';
   static const String pullakkayar = '035-SWRDKOCHI';
+  static const String manikal = '032-SWRDKOCHI';
+
+  static const StationInfo kalloopparaInfo = StationInfo(
+    code: kallooppara, name: 'Kallooppara', dangerLevel: 6.0, highestFloodLevel: 9.64);
+  static const StationInfo pullakkayarInfo = StationInfo(
+    code: pullakkayar, name: 'Pullakkayar', dangerLevel: 97.2, highestFloodLevel: 101.665);
+  static const StationInfo manikalInfo = StationInfo(
+    code: manikal, name: 'Manikal', dangerLevel: 78.4, highestFloodLevel: 79.63);
 }
 
 class WaterApiService {

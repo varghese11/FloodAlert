@@ -5,6 +5,7 @@ class NotificationService {
   static const _alarmChannelName = 'Flood Alarm';
   static const _mainAlertId = 1;
   static const _upstreamAlertId = 2;
+  static const _manikalAlertId = 3;
 
   // System alarm URI — plays the device's default alarm ringtone
   static const _alarmSoundUri =
@@ -67,7 +68,19 @@ class NotificationService {
     await _plugin.show(
       _upstreamAlertId,
       'EARLY WARNING — Upstream Rising',
-      'Pullakkayar at ${currentLevel.toStringAsFixed(2)} m — Kallooppara may rise soon',
+      'Pullakkayar at ${currentLevel.toStringAsFixed(2)} — Kallooppara may rise soon',
+      _alarmDetails(),
+    );
+  }
+
+  Future<void> showManikalAlert({
+    required double currentLevel,
+    required double threshold,
+  }) async {
+    await _plugin.show(
+      _manikalAlertId,
+      'EARLY WARNING — Manikal Rising',
+      'Manikal at ${currentLevel.toStringAsFixed(2)} — Kallooppara may rise soon',
       _alarmDetails(),
     );
   }

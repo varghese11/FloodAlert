@@ -6,22 +6,27 @@ import '../models/water_reading.dart';
 class StorageService {
   static const _readingsBoxName = 'water_readings';
   static const _upstreamBoxName = 'upstream_readings';
+  static const _manikalBoxName = 'manikal_readings';
   static const _thresholdKey = 'alarm_threshold';
   static const _upstreamThresholdKey = 'upstream_alarm_threshold';
+  static const _manikalThresholdKey = 'manikal_alarm_threshold';
   static const _pausedKey = 'is_fetching_paused';
   static const _maxStoredDays = 3;
 
   late Box<WaterReading> _readingsBox;
   late Box<WaterReading> _upstreamBox;
+  late Box<WaterReading> _manikalBox;
   late SharedPreferences _prefs;
 
   Future<void> init() async {
     _readingsBox = await Hive.openBox<WaterReading>(_readingsBoxName);
     _upstreamBox = await Hive.openBox<WaterReading>(_upstreamBoxName);
+    _manikalBox = await Hive.openBox<WaterReading>(_manikalBoxName);
     _prefs = await SharedPreferences.getInstance();
 
     await _pruneBox(_readingsBox);
     await _pruneBox(_upstreamBox);
+    await _pruneBox(_manikalBox);
   }
 
   // --- Shared Storage Logic ---
@@ -49,6 +54,12 @@ class StorageService {
   List<WaterReading> getUpstreamReadings() => _getStationReadings(_upstreamBox);
   ValueListenable<Box<WaterReading>> getUpstreamListenable() => _upstreamBox.listenable();
 
+  // --- Upstream station (MANIKAL) ---
+
+  Future<void> saveManikalReadings(List<WaterReading> readings) => _saveStationReadings(_manikalBox, readings);
+  List<WaterReading> getManikalReadings() => _getStationReadings(_manikalBox);
+  ValueListenable<Box<WaterReading>> getManikalListenable() => _manikalBox.listenable();
+
   Future<void> _pruneBox(Box<WaterReading> box) async {
     final cutoff =
         DateTime.now().subtract(const Duration(days: _maxStoredDays));
@@ -68,6 +79,11 @@ class StorageService {
       _prefs.getDouble(_upstreamThresholdKey) ?? 97.0;
   Future<void> saveUpstreamThreshold(double v) =>
       _prefs.setDouble(_upstreamThresholdKey, v);
+
+  double getManikalThreshold() =>
+      _prefs.getDouble(_manikalThresholdKey) ?? 78.4;
+  Future<void> saveManikalThreshold(double v) =>
+      _prefs.setDouble(_manikalThresholdKey, v);
 
   bool isFetchingPaused() => _prefs.getBool(_pausedKey) ?? false;
   Future<void> savePaused(bool v) => _prefs.setBool(_pausedKey, v);

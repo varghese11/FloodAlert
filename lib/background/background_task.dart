@@ -25,7 +25,7 @@ void callbackDispatcher() {
       final notif = NotificationService();
       await notif.init();
 
-      // Fetch both stations in parallel, handling failures independently
+      // Fetch all stations in parallel, handling failures independently
       final upstreamFuture = () async {
         final upstreamReadings = await api.fetchReadings(stationCode: WaterStation.pullakkayar);
         if (upstreamReadings.isNotEmpty) {
@@ -36,6 +36,21 @@ void callbackDispatcher() {
             await notif.showUpstreamAlert(
               currentLevel: upstreamLevel,
               threshold: upstreamThreshold,
+            );
+          }
+        }
+      }();
+
+      final manikalFuture = () async {
+        final manikalReadings = await api.fetchReadings(stationCode: WaterStation.manikal);
+        if (manikalReadings.isNotEmpty) {
+          await storage.saveManikalReadings(manikalReadings);
+          final manikalLevel = manikalReadings.last.waterLevel;
+          final manikalThreshold = storage.getManikalThreshold();
+          if (manikalLevel >= manikalThreshold) {
+            await notif.showManikalAlert(
+              currentLevel: manikalLevel,
+              threshold: manikalThreshold,
             );
           }
         }
@@ -57,6 +72,7 @@ void callbackDispatcher() {
       }();
 
       bool upstreamSuccess = false;
+      bool manikalSuccess = false;
       bool mainSuccess = false;
 
       try {
@@ -65,11 +81,16 @@ void callbackDispatcher() {
       } catch (_) {}
 
       try {
+        await manikalFuture;
+        manikalSuccess = true;
+      } catch (_) {}
+
+      try {
         await mainFuture;
         mainSuccess = true;
       } catch (_) {}
 
-      return upstreamSuccess && mainSuccess;
+      return upstreamSuccess && manikalSuccess && mainSuccess;
     } catch (_) {
       // false triggers WorkManager retry with backoff
       return false;

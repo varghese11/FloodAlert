@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/water_data_provider.dart';
 import '../providers/settings_provider.dart';
+import '../services/water_api_service.dart';
 import '../widgets/pause_toggle_button.dart';
 import '../widgets/upstream_indicator_card.dart';
 import '../widgets/water_level_card.dart';
@@ -27,7 +28,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isPaused = context.watch<SettingsProvider>().isPaused;
+    final settings = context.watch<SettingsProvider>();
+    final isPaused = settings.isPaused;
     final dataProvider = context.watch<WaterDataProvider>();
     final error = dataProvider.errorMessage;
     final isLoading = dataProvider.isLoading;
@@ -148,7 +150,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: EdgeInsets.only(bottom: 12),
                 child: LinearProgressIndicator(),
               ),
-            const UpstreamIndicatorCard(),
+            UpstreamIndicatorCard(
+              stationName: 'Pullakkayar (Upstream)',
+              stationData: dataProvider.upstreamStation,
+              alertThreshold: settings.upstreamThreshold,
+              dangerLevel: WaterStation.pullakkayarInfo.dangerLevel,
+              highestFloodLevel: WaterStation.pullakkayarInfo.highestFloodLevel,
+            ),
+            const SizedBox(height: 12),
+            UpstreamIndicatorCard(
+              stationName: 'Manikal (Upstream)',
+              stationData: dataProvider.manikalStation,
+              alertThreshold: settings.manikalThreshold,
+              dangerLevel: WaterStation.manikalInfo.dangerLevel,
+              highestFloodLevel: WaterStation.manikalInfo.highestFloodLevel,
+            ),
             const SizedBox(height: 12),
             const WaterLevelCard(),
             const SizedBox(height: 16),
@@ -156,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 24),
             Center(
               child: Text(
-                '017-SWRDKOCHI · 035-SWRDKOCHI · Kerala, India',
+                '017-SWRDKOCHI · 035-SWRDKOCHI · 032-SWRDKOCHI · Kerala, India',
                 style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
               ),
             ),

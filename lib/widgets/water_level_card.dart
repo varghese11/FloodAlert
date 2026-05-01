@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../providers/water_data_provider.dart';
+import '../services/water_api_service.dart';
 import 'level_indicator.dart';
 
 class WaterLevelCard extends StatelessWidget {
@@ -57,8 +58,24 @@ class WaterLevelCard extends StatelessWidget {
                   ),
             const SizedBox(height: 8),
             LevelIndicator(delta: provider.mainStation.levelDelta),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                _LevelInfo(
+                  label: 'Danger Level',
+                  value: '${WaterStation.kalloopparaInfo.dangerLevel.toStringAsFixed(1)} m',
+                  color: Colors.orange.shade700,
+                ),
+                const SizedBox(width: 20),
+                _LevelInfo(
+                  label: 'Highest Flood',
+                  value: '${WaterStation.kalloopparaInfo.highestFloodLevel.toStringAsFixed(2)} m',
+                  color: Colors.red.shade700,
+                ),
+              ],
+            ),
             if (lastUpdated != null) ...[
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               Text(
                 'Last updated: ${DateFormat('dd MMM yyyy, hh:mm a').format(lastUpdated)}',
                 style: const TextStyle(fontSize: 12, color: Colors.grey),
@@ -67,6 +84,26 @@ class WaterLevelCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _LevelInfo extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+
+  const _LevelInfo({required this.label, required this.value, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
+        Text(value,
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: color)),
+      ],
     );
   }
 }
